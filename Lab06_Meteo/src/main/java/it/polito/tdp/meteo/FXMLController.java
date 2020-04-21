@@ -9,6 +9,8 @@ import java.util.ResourceBundle;
 
 import it.polito.tdp.meteo.model.Mese;
 import it.polito.tdp.meteo.model.Model;
+import it.polito.tdp.meteo.model.Percorso;
+import it.polito.tdp.meteo.model.Rilevamento;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,7 +40,17 @@ public class FXMLController {
 
 	@FXML
 	void doCalcolaSequenza(ActionEvent event) {
+		txtResult.clear();
 
+		try {
+			Percorso result = model.trovaSequenza(boxMese.getValue());
+
+			for (Rilevamento r : result.getRilevamenti()) {
+				txtResult.appendText(r.toString() + "\n");
+			}
+		} catch (Exception e) {
+			txtResult.appendText("Non sono disponibili tutte le date del mese selezionato");
+		}
 	}
 
 	@FXML

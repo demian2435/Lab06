@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.polito.tdp.meteo.model.Citta;
 import it.polito.tdp.meteo.model.Rilevamento;
 
 public class MeteoDAO {
@@ -97,4 +98,39 @@ public class MeteoDAO {
 		}
 	}
 
+	public List<Citta> getSetUpRicorsiva(int mese) {
+
+		final String sql = "SELECT Localita, Data, Umidita FROM situazione WHERE Data BETWEEN ? and ? ORDER BY data ASC";
+
+		List<Citta> setUpRicorsiva = new ArrayList<Citta>();
+
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, "2013-" + mese + "-01");
+			st.setString(2, "2013-" + mese + "-15");
+
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+
+				String nomeCitta = rs.getString("Localita");
+
+				if (!(setUpRicorsiva.contains(new Citta(nomeCitta)))) {
+					setUpRicorsiva.add(new Citta(nomeCitta));
+				}
+				
+				Rilevamento r = new Rilevamento(nomeCitta, rs.getDate("Data"), rs.getInt("Umidita"));
+				setUpRicorsiva.get(setUpRicorsiva.indexOf(new Citta(nomeCitta))).addRilevamento(r);
+			}
+
+			conn.close();
+			return setUpRicorsiva;
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
 }
